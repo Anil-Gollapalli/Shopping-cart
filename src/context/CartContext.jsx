@@ -5,37 +5,39 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  // Add product to the cart or update quantity
-  const addToCart = (product, quantity) => {
-    if (quantity <= 0) {
-      // If quantity is zero or less, remove it from the cart.
-      removeFromCart(product.id);
-      return;
-    }
-
-    setCartItems((prev) => {
-      const existingItem = prev.find((item) => item.product.id === product.id);
+  // Add item to the cart
+  const addToCart = (product) => {
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find(item => item.product.id === product.id);
       if (existingItem) {
-        // Update the quantity if the product already exists in the cart
-        return prev.map((item) =>
+        return prevItems.map(item =>
           item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         );
-      } else {
-        // Add the product if it doesn't exist in the cart
-        return [...prev, { product, quantity }];
       }
+      return [...prevItems, { product, quantity: 1 }];
     });
   };
 
-  // Remove product from the cart by id
-  const removeFromCart = (productId) => {
-    setCartItems((prev) => prev.filter((item) => item.product.id !== productId));
+  // Remove item from the cart
+  const removeFromCart = (id) => {
+    setCartItems((prevItems) => prevItems.filter(item => item.product.id !== id));
+  };
+
+  // Update item quantity in the cart
+  const updateCartItemQuantity = (id, delta) => {
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.product.id === id
+          ? { ...item, quantity: Math.max(item.quantity + delta, 1) } // Ensure quantity stays >= 1
+          : item
+      )
+    );
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateCartItemQuantity }}>
       {children}
     </CartContext.Provider>
   );
