@@ -3,25 +3,26 @@ import { CartContext } from "../context/CartContext";
 
 const ProductCard = ({ product }) => {
   const [quantity, setQuantity] = useState(0);
+  const [notification, setNotification] = useState("");
   const { addToCart } = useContext(CartContext);
+
+  const showNotification = (message) => {
+    setNotification(message);
+    setTimeout(() => setNotification(""), 3000); // Auto-hide after 3 seconds
+  };
 
   const increment = () => {
     setQuantity((prev) => prev + 1);
     addToCart(product, 1); // Add one more to the cart
+    showNotification(`${product.title} added to cart!`);
   };
 
   const decrement = () => {
     if (quantity > 0) {
       setQuantity((prev) => prev - 1);
       addToCart(product, -1); // Decrease the quantity in the cart
+      showNotification(`${product.title} removed from cart!`);
     }
-  };
-
-  // Handle quantity changes directly from the input field
-  const handleQuantityChange = (e) => {
-    const newQuantity = Math.max(0, Number(e.target.value)); // Ensures no negative quantity
-    setQuantity(newQuantity);
-    addToCart(product, newQuantity - quantity); // Update cart based on change
   };
 
   return (
@@ -34,11 +35,11 @@ const ProductCard = ({ product }) => {
         <input
           type="number"
           value={quantity}
-          onChange={handleQuantityChange}
+          onChange={(e) => setQuantity(Math.max(0, Number(e.target.value)))}
         />
         <button onClick={increment}>+</button>
       </div>
-      <button onClick={() => addToCart(product, quantity)}>Add to Cart</button>
+      {notification && <div className="notification">{notification}</div>}
     </div>
   );
 };
