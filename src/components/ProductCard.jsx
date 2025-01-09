@@ -25,6 +25,16 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const handleAddToCart = () => {
+    if (quantity > 0) {
+      addToCart(product, quantity);
+      showNotification(`${quantity} ${product.title}(s) added to cart!`);
+      setQuantity(0); // Reset the quantity after adding
+    } else {
+      showNotification("Please select a quantity before adding to cart!");
+    }
+  };
+
   return (
     <div className="product-card">
       <img src={product.image} alt={product.title} />
@@ -39,6 +49,9 @@ const ProductCard = ({ product }) => {
         />
         <button onClick={increment}>+</button>
       </div>
+      <button onClick={handleAddToCart} className="add-to-cart-button">
+        Add to Cart
+      </button>
       {notification && <div className="notification">{notification}</div>}
     </div>
   );
